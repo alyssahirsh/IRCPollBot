@@ -7,7 +7,7 @@ An HRio Production.
 import irc.bot
 import irc.strings
 import shlex
-from BotExceptions import BadVoteOption, BadPollIDValue
+from BotExceptions import BadVoteOption, PollIDTaken, PollIDTooLong
 
 CMD_VOTE = 'vote'
 CMD_CREATEPOLL = 'createpoll'
@@ -165,7 +165,11 @@ class VoteBot(irc.bot.SingleServerIRCBot):
         except ValueError:
             conn.notice(target, argsError)
             return
-        except BadPollIDValue as err:
+        except PollIDTaken as err:
+            conn.notice(target, "Invalid Poll ID: '%s' already in use" %
+                                (err.args[0], Poll.pollIDMaxLen))
+            return
+        except PollIDTooLong as err:
             conn.notice(target, "Invalid Poll ID %s. Must be %s chars or fewer and not already in use" %
                                 (err.args[0], Poll.pollIDMaxLen))
             return
@@ -237,8 +241,10 @@ class VoteBot(irc.bot.SingleServerIRCBot):
         if len(parsedArgs) < 3:
             raise ValueError
         pollID = parsedArgs[0]
-        if len(pollID) > Poll.pollIDMaxLen or pollID in self.polls.keys():
-            raise BadPollIDValue(pollID)
+        if len(pollID) > Poll.pollIDMaxLen:
+            raise PollIDTooLong(pollID)
+        if pollID in self.polls.keys():
+            raise PollIDTaken(pollID)
         question, answers = (parsedArgs[1], parsedArgs[2:])
         return (pollID, question, answers)
 

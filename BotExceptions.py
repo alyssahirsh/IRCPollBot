@@ -11,3 +11,11 @@ class BadVoteOption(Exception):
 class BadPollIDValue(Exception):
     """PollID is malformed or already in use"""
     pass
+
+class PollIDTaken(BadPollIDValue):
+    """PollID already in use"""
+    pass
+
+class PollIDTooLong(BadPollIDValue):
+    """Attempt to set PollID value longer than allowed"""
+    pass
