@@ -19,3 +19,7 @@ class PollIDTaken(BadPollIDValue):
 class PollIDTooLong(BadPollIDValue):
     """Attempt to set PollID value longer than allowed"""
     pass
+
+class HostAlreadyVoted(Exception):
+    """host-user tried to vote in a poll they already voted in"""
+    pass
